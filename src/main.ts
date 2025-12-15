@@ -1,28 +1,56 @@
 import './style.css';
-import { Application, Sprite, Texture } from 'pixi.js';
+import { Application, ColorMatrixFilter } from 'pixi.js';
+import { Viewport } from 'pixi-viewport';
 import { Game } from './game';
+import { createIsometricBackground } from './mapBuilder';
 
-async function bootstrap(): Promise<void> {
+(async () => {
+  const app = new Application();
 
-    const app = new Application({
-        resizeTo: window,
-        background: '#0b1021',
-        antialias: true,
-    });
+  await app.init({
+    resizeTo: window,
+    background: '#000',
+    antialias: true,
+  });
 
-    let backgroundTexture = Texture.from("../assets/image.png");
-    let background = new Sprite(backgroundTexture); 
-    background.height = app.screen.height;
-    background.width = app.screen.width;
-    background.tint = 0x223344;
-    app.stage.addChild(background);
+  app.renderer.resolution = window.devicePixelRatio || 1;
 
-    const host = document.getElementById('app');
-    if (!host) throw new Error('Missing #app root element');
-    host.appendChild(app.view as HTMLCanvasElement);
+  const root = document.getElementById('app');
+  if (!root) throw new Error('Missing #app root element');
 
-    const game = new Game(app);
-    await game.init();
-}
+  root.appendChild(app.canvas);
 
-bootstrap().catch((error) => console.error(error));
+  const viewport = new Viewport({
+    screenWidth: app.screen.width,
+    screenHeight: app.screen.height,
+    worldWidth: 4000,
+    worldHeight: 4000,
+    events: app.renderer.events,
+    stopPropagation: true,
+  });
+
+  app.canvas.addEventListener(
+  'wheel',
+  (e) => {
+    e.preventDefault();
+  },
+  { passive: false }
+);
+
+  viewport.drag().pinch().wheel().decelerate();
+  viewport.clampZoom({ minScale: 0.5, maxScale: 2 });
+  // viewport.clamp({ left: 0, right: 4000, top: 0, bottom: 4000 });
+
+  // viewport.setZoom(1, true);
+  app.stage.addChild(viewport);
+
+  const nightFilter = new ColorMatrixFilter();
+  nightFilter.night(0.3, false);
+  nightFilter.brightness(0.6, false);
+  viewport.filters = [nightFilter];
+
+  await createIsometricBackground(app, viewport);
+
+  const game = new Game(app, viewport);
+  await game.init();
+})();

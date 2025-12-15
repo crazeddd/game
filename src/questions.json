@@ -1,0 +1,50 @@
+[
+  {
+    "id": "q1",
+    "question": "Is the Earth flat?",
+    "correctAnswer": false,
+    "points": 10
+  },
+  {
+    "id": "q2",
+    "question": "Is water composed of H2O?",
+    "correctAnswer": true,
+    "points": 10
+  },
+  {
+    "id": "q3",
+    "question": "Does the sun revolve around the Earth?",
+    "correctAnswer": false,
+    "points": 10
+  },
+  {
+    "id": "q4",
+    "question": "Are humans mammals?",
+    "correctAnswer": true,
+    "points": 10
+  },
+  {
+    "id": "q5",
+    "question": "Is light faster than sound?",
+    "correctAnswer": true,
+    "points": 10
+  },
+  {
+    "id": "q6",
+    "question": "Can fish breathe air?",
+    "correctAnswer": false,
+    "points": 10
+  },
+  {
+    "id": "q7",
+    "question": "Is gold heavier than iron?",
+    "correctAnswer": true,
+    "points": 10
+  },
+  {
+    "id": "q8",
+    "question": "Do plants produce oxygen?",
+    "correctAnswer": true,
+    "points": 10
+  }
+]

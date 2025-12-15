@@ -11,7 +11,9 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "pixi.js": "^7.4.0"
+    "gsap": "^3.14.1",
+    "pixi-viewport": "^6.0.3",
+    "pixi.js": "^8.14.3"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.0.0",

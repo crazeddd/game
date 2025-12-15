@@ -8,3 +8,4 @@ Lightweight PixiJS + Vite + TypeScript boardgame.
 npm install
 npm run dev
 ```
+https://congenial-barnacle-46xwrx49q9qh74p-5173.app.github.dev/
