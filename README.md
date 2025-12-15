@@ -1,11 +1,10 @@
 # Pedro Paramo Board Game
 
-Lightweight PixiJS + Vite + TypeScript boardgame.
+A PixiJS + Vite + TypeScript boardgame inspired by the book "Pedro Paramo".
 
-## Getting Started
+## For development
 
 ```bash
 npm install
 npm run dev
 ```
-https://congenial-barnacle-46xwrx49q9qh74p-5173.app.github.dev/
