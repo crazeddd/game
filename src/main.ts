@@ -2,7 +2,9 @@ import './style.css';
 import { Application, ColorMatrixFilter } from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import { Game } from './game';
-import { createIsometricBackground } from './mapBuilder';
+import { createBackground } from './mapBuilder';
+
+import { DecorationEditor } from './decorationEditor';
 
 (async () => {
   const app = new Application();
@@ -30,12 +32,12 @@ import { createIsometricBackground } from './mapBuilder';
   });
 
   app.canvas.addEventListener(
-  'wheel',
-  (e) => {
-    e.preventDefault();
-  },
-  { passive: false }
-);
+    'wheel',
+    (e) => {
+      e.preventDefault();
+    },
+    { passive: false }
+  );
 
   viewport.drag().pinch().wheel().decelerate();
   viewport.clampZoom({ minScale: 0.5, maxScale: 2 });
@@ -49,7 +51,10 @@ import { createIsometricBackground } from './mapBuilder';
   nightFilter.brightness(0.6, false);
   viewport.filters = [nightFilter];
 
-  await createIsometricBackground(app, viewport);
+  await createBackground(app, viewport);
+
+  // const editor = new DecorationEditor(app, viewport);
+  // await editor.init();
 
   const game = new Game(app, viewport);
   await game.init();

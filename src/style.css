@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Londrina+Sketch&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kranky&display=swap');
 
 :root {
   --panel: rgba(255, 255, 255, 0.04);
@@ -6,9 +6,8 @@
   --text: rgba(18, 18, 18, 0.8);
   --muted: rgba(18, 18, 18, 0.8);
   --shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-  --overlay: rgba(0, 0, 0, 0.8);
-  --progress: rgb(255, 0, 4);
-  font-family: 'Londrina Sketch', 'Segoe UI', sans-serif;
+  --progress: rgba(255, 65, 65, 1);
+  font-family: 'Kranky', 'Segoe UI', sans-serif;
 }
 
 * {
@@ -33,7 +32,7 @@ body {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  box-shadow: inset 0px 0px 10rem var(--overlay);
+  box-shadow: inset 0px 0px 10rem rgba(0, 0, 0, 0.8);
 }
 
 #app {
@@ -68,40 +67,32 @@ progress {
   appearance: none;
   -webkit-appearance: none;
   overflow: hidden;
-  color: var(--progress);
-  accent-color: var(--progress);
-  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+}
+
+progress::-webkit-progress-bar {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+progress::-webkit-progress-value {
+  background: var(--progress);
+  filter: drop-shadow(0 0 10px rgb(228, 212, 212));
+  box-shadow: 0 0 10px rgba(255, 0, 0, 1);
+}
+
+progress::-moz-progress-bar {
+  background: var(--progress);
 }
 
 #ui-overlay {
   z-index: 10;
 }
 
-#dice-input-section {
+#dice-section {
   margin-top: 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-#dice-input-section label {
-  font-size: 1.3rem;
-  color: var(--text);
-}
-
-#dice-input {
-  padding: 8px 12px;
-  font-size: 1.2rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  color: var(--text);
-  font-family: 'Londrina Sketch', sans-serif;
-}
-
-#dice-input:focus {
-  outline: none;
-  border-color: var(--accent);
 }
 
 #question-section {
@@ -111,7 +102,8 @@ progress {
   transform: translate(-50%, -50%);
   max-width: 600px;
   width: 90%;
-  padding: 16px;
+  padding: 48px;
+  display: none;
 }
 
 #question-text {
@@ -124,12 +116,8 @@ progress {
   margin-right: 12px;
   padding: 10px 20px;
   font-size: 1.2rem;
-  background: var(--accent);
-  color: var(--bg);
-  border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-family: 'Londrina Sketch', sans-serif;
   transition: transform 0.1s;
 }
 
@@ -142,17 +130,18 @@ progress {
 }
 
 #feedback-section {
-  margin-top: 16px;
-  padding: 12px;
-  background: rgba(233, 236, 242, 0.1);
-  border-radius: 6px;
-  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 16px;
 }
 
 #feedback-text {
-  font-size: 1.4rem;
-  color: var(--accent);
-  font-weight: bold;
+  font-size: 5rem;
+  /* font-weight: bold; */
+  color: #000;
+  /* text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); */
 }
 
 #player-display {
@@ -170,16 +159,16 @@ progress {
   border-image-source: url('../assets/9slice.png');
   border-image-slice: 10% fill;
   border-image-repeat: stretch;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    filter 0.2s;
 }
 
-.players { 
+.players {
   display: flex;
   gap: 1rem;
   justify-content: center;
-}
-
-.player {
-  transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
 }
 
 .active {
@@ -219,13 +208,39 @@ progress {
   display: none;
 }
 
-#dice-input-section {
+#dice-section {
   position: absolute;
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
   padding: 16px;
   display: none;
+}
+
+#game-over {
+  position: absolute;
+  top: 150%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 100vh;
+  width: 100vw;
+  padding: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+#leaderboard {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.leaderboard-entry {
+  font-size: 2rem;
+  color: var(--text);
 }
 
 button {
@@ -235,7 +250,7 @@ button {
   background: transparent;
   outline: none;
   cursor: pointer;
-  font-family: 'Londrina Sketch', sans-serif;
+  font-family: 'Kranky', sans-serif;
   transition: transform 0.1s;
   border: 0px solid transparent;
   border-image-source: url('../assets/9slice.png');
@@ -249,4 +264,9 @@ button:hover {
 
 button:active {
   transform: scale(0.95);
+}
+
+.dead {
+  opacity: 0.5;
+  filter: grayscale(100%);
 }
