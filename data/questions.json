@@ -7,12 +7,11 @@
       {
         "text": "It cements Pedro's obsession over her",
         "consequence": "LOSE_SANITY",
-        "amount": 10
+        "amount": 15
       },
       {
         "text": "It causes Susanna to become more haunted by her past",
-        "consequence": "LOSE_SANITY",
-        "amount": 15
+        "consequence": "NOTHING"
       }
     ]
   },
@@ -23,8 +22,7 @@
     "answers": [
       {
         "text": "This love for his wife causes her later loss to become even more detrimental",
-        "consequence": "LOSE_SANITY",
-        "amount": 15
+        "consequence": "NOTHING"
       },
       {
         "text": "His happiness becomes stagnant because of his life in poverty",

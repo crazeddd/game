@@ -357,6 +357,9 @@ export class Game {
         this.ui.showFeedback('Lost your next turn!');
         this.players[this.currentPlayer].setSkipNextTurn();
         break;
+      case 'NOTHING':
+        this.ui.showFeedback('Good choice.');
+        break;
     }
 
     // Check if player is dead

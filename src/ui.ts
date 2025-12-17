@@ -4,7 +4,7 @@ import { RandEvent } from './game';
 
 export interface QuestionAnswer {
   text: string;
-  consequence: 'LOSE_SANITY' | 'MOVE_BACKWARD' | 'LOSE_TURN';
+  consequence: 'LOSE_SANITY' | 'MOVE_BACKWARD' | 'LOSE_TURN' | 'NOTHING';
   amount?: number;
 }
 
@@ -39,8 +39,8 @@ export class UIOverlay {
 
   render(): void {
     this.element.innerHTML = `
-        <div id="main-menu" class="nine-slice-border">
-      <h1>Pedro Páramo</h1>
+    <div id="main-menu" class="nine-slice-border">
+      <h1>Pedro Páramo (A game)</h1>
       <div class="players">
       <button id="add-player-button">+</button>
         </div>
