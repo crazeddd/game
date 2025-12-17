@@ -1,0 +1,40 @@
+[
+    {
+        "type" : "LOSE_TURN",
+        "description": "Stopped by Dorotea. You stay at her house for the night. Lose your turn."
+    },
+    {
+        "type" : "MOVE_BACKWARD",
+        "amount": 3,
+        "description": "Ran over by a horse! You get hurt and need to go back to heal. Move back 3 spaces."
+    },
+    {
+        "type" : "LOSE_SANITY",
+        "amount": 10,
+        "description": "You confess your sins. You get scared someone heard you. Lose 10 sanity."
+    },
+    {
+        "type" : "LOSE_SANITY",
+        "amount": 15,
+        "description": "You see a ghost! You think you're hallucinating. Lose 15 sanity."
+    },
+    {
+        "type" : "LOSE_SANITY",
+        "amount": 20,
+        "description": "You turn a blind eye to Miguel murdering someone. You live with the guilt. Lose 20 sanity."
+    },
+    {
+        "type" : "LOSE_SANITY",
+        "amount": 15,
+        "description": "You ignore cries for help. The cries haunt you in your dreams. Lose 15 sanity."
+    },
+    {
+        "type" : "MOVE_BACKWARD",
+        "amount": 4,
+        "description": "You inherit Pedro's debt and have to fight in the war. Move back 4 spaces."
+    },
+    {
+        "type" : "LOSE_TURN",
+        "description": "You stop to watch Miguel's funeral. You are wasting time. Lose your turn."
+    }
+]

@@ -14,20 +14,36 @@ interface DecorationData {
   scale: number;
 }
 
+interface BoardTileData {
+  x: number;
+  y: number;
+  type: string;
+  id: string;
+}
+
+type EditorMode = 'decoration' | 'board-tile';
+
 export class DecorationEditor {
   private app: Application;
   private parent: Container;
   private decorations: DecorationData[] = [];
+  private boardTiles: BoardTileData[] = [];
   private decorationTextures: Texture[] = [];
   private decorContainer: Container;
+  private boardTileContainer: Container;
   private selectedType: number = 0;
+  private selectedTileType: string = '1';
   private ui: Container;
   private previewSprite: Sprite | null = null;
+  private previewTile: Graphics | null = null;
+  private editorMode: EditorMode = 'decoration';
+  private nextTileId: number = 1;
   
   private readonly TILE_WIDTH = 512;
   private readonly TILE_HEIGHT = 256;
   private readonly offsetX: number;
   private readonly offsetY: number;
+  private readonly TILE_RADIUS = 20;
 
   private readonly variants = [
     { scale: 0.6, name: 'Big Rock' },
@@ -37,12 +53,15 @@ export class DecorationEditor {
     { scale: 0.5, name: 'Shrub' },
   ];
 
+  private readonly boardTileTypes = ['1', '2', '3'];
+
   constructor(app: Application, parent: Container) {
     this.app = app;
     this.parent = parent;
     this.offsetX = app.screen.width / 2;
     this.offsetY = app.screen.height / 2;
     this.decorContainer = new Container();
+    this.boardTileContainer = new Container();
     this.ui = new Container();
   }
 
@@ -54,6 +73,21 @@ export class DecorationEditor {
     } catch (e) {
       console.log('No existing decorations found, starting fresh');
       this.decorations = [];
+    }
+
+    // Load existing board tiles
+    try {
+      const response = await fetch('../data/board-tiles.json');
+      this.boardTiles = await response.json();
+      // Calculate next ID
+      this.nextTileId = Math.max(...this.boardTiles.map(t => {
+        const match = t.id.match(/(\d+)$/);
+        return match ? parseInt(match[1]) : 0;
+      })) + 1;
+    } catch (e) {
+      console.log('No existing board tiles found, starting fresh');
+      this.boardTiles = [];
+      this.nextTileId = 1;
     }
 
     // Load textures
@@ -74,11 +108,13 @@ export class DecorationEditor {
     }
 
     this.parent.addChild(this.decorContainer);
+    this.parent.addChild(this.boardTileContainer);
     this.app.stage.addChild(this.ui); // UI stays fixed on screen
     this.ui.zIndex = 100; // Ensure UI is on top
 
-    // Render existing decorations
+    // Render existing decorations and board tiles
     this.renderDecorations();
+    this.renderBoardTiles();
 
     // Setup UI
     this.setupUI();
@@ -112,9 +148,44 @@ export class DecorationEditor {
     }
   }
 
+  private renderBoardTiles(): void {
+    this.boardTileContainer.removeChildren();
+    this.previewTile = null; // Reset preview
+
+    const colors: Record<string, number> = { '1': 0x00ff00, '2': 0x0000ff, '3': 0xff00ff };
+
+    for (const tile of this.boardTiles) {
+      const circle = new Graphics();
+      circle.circle(0, 0, this.TILE_RADIUS);
+      circle.fill({ color: colors[tile.type] || 0xffff00 });
+      circle.x = tile.x;
+      circle.y = tile.y;
+      circle.eventMode = 'static';
+      circle.cursor = 'pointer';
+
+      // Add label
+      const label = new Text({
+        text: tile.id,
+        style: { fill: 0xffffff, fontSize: 10 }
+      });
+      label.anchor.set(0.5);
+      circle.addChild(label);
+
+      // Right-click to delete
+      circle.on('pointerdown', (e: any) => {
+        if (e.button === 2) {
+          e.stopPropagation();
+          this.removeBoardTile(tile);
+        }
+      });
+
+      this.boardTileContainer.addChild(circle);
+    }
+  }
+
   private setupUI(): void {
     const panelWidth = 200;
-    const panelHeight = 250;
+    const panelHeight = 350;
     const startX = (this.app.screen.width - panelWidth) / 2;
     const startY = 10;
 
@@ -132,16 +203,53 @@ export class DecorationEditor {
     title.anchor.set(0.5, 0);
     this.ui.addChild(title);
 
-    // Type selector buttons
+    // Mode toggle buttons
+    const decorButton = this.createButton(
+      'Decorations',
+      startX + 10,
+      startY + 40,
+      85,
+      25,
+      () => this.setMode('decoration')
+    );
+    this.ui.addChild(decorButton);
+
+    const tileButton = this.createButton(
+      'Board Tiles',
+      startX + 105,
+      startY + 40,
+      85,
+      25,
+      () => this.setMode('board-tile')
+    );
+    this.ui.addChild(tileButton);
+
+    // Type selector buttons - Decorations
     this.variants.forEach((variant, index) => {
       const button = this.createButton(
         variant.name,
         startX + 10,
-        startY + 40 + index * 30,
+        startY + 75 + index * 30,
         180,
         25,
-        () => this.selectType(index)
+        () => this.selectType(index),
+        `decor-btn-${index}`
       );
+      this.ui.addChild(button);
+    });
+
+    // Type selector buttons - Board Tiles
+    this.boardTileTypes.forEach((type, index) => {
+      const button = this.createButton(
+        `Type ${type}`,
+        startX + 10,
+        startY + 75 + index * 30,
+        180,
+        25,
+        () => this.selectTileType(type),
+        `tile-btn-${type}`
+      );
+      button.visible = false;
       this.ui.addChild(button);
     });
 
@@ -149,10 +257,11 @@ export class DecorationEditor {
     const saveButton = this.createButton(
       'Save to JSON',
       startX + 10,
-      startY + 190,
+      startY + 310,
       180,
       30,
-      () => this.saveDecorations()
+      () => this.saveData(),
+      'save-btn'
     );
     this.ui.addChild(saveButton);
 
@@ -165,11 +274,13 @@ export class DecorationEditor {
     y: number,
     width: number,
     height: number,
-    onClick: () => void
+    onClick: () => void,
+    id?: string
   ): Container {
     const container = new Container();
     container.x = x;
     container.y = y;
+    if (id) (container as any).id = id;
 
     const bg = new Graphics();
     bg.rect(0, 0, width, height);
@@ -211,23 +322,67 @@ export class DecorationEditor {
     this.updateSelection();
   }
 
-  private updateSelection(): void {
-    // Highlight selected button
-    this.ui.children.forEach((child, index) => {
-      if (index >= 2 && index < 7) { // Button indices
-        const buttonIndex = index - 2;
-        const bg = (child as any).bg;
-        if (bg) {
-          bg.clear();
-          bg.rect(0, 0, 180, 25);
-          bg.fill({ color: buttonIndex === this.selectedType ? 0x0066cc : 0x333333 });
-        }
+  private selectTileType(type: string): void {
+    this.selectedTileType = type;
+    this.updateSelection();
+  }
+
+  private setMode(mode: EditorMode): void {
+    this.editorMode = mode;
+    this.previewSprite = null;
+    this.previewTile = null;
+    
+    // Toggle visibility
+    this.decorContainer.visible = mode === 'decoration';
+    this.boardTileContainer.visible = mode === 'board-tile';
+
+    // Update button visibility
+    this.ui.children.forEach((child) => {
+      const id = (child as any).id;
+      if (id?.startsWith('decor-btn-')) {
+        child.visible = mode === 'decoration';
+      } else if (id?.startsWith('tile-btn-')) {
+        child.visible = mode === 'board-tile';
       }
     });
+
+    this.updateSelection();
+  }
+
+  private updateSelection(): void {
+    // Highlight selected button
+    if (this.editorMode === 'decoration') {
+      this.ui.children.forEach((child) => {
+        const id = (child as any).id;
+        if (id?.startsWith('decor-btn-')) {
+          const buttonIndex = parseInt(id.split('-')[2]);
+          const bg = (child as any).bg;
+          if (bg) {
+            bg.clear();
+            bg.rect(0, 0, 180, 25);
+            bg.fill({ color: buttonIndex === this.selectedType ? 0x0066cc : 0x333333 });
+          }
+        }
+      });
+    } else {
+      this.ui.children.forEach((child) => {
+        const id = (child as any).id;
+        if (id?.startsWith('tile-btn-')) {
+          const type = id.split('-')[2];
+          const bg = (child as any).bg;
+          if (bg) {
+            bg.clear();
+            bg.rect(0, 0, 180, 25);
+            bg.fill({ color: type === this.selectedTileType ? 0x0066cc : 0x333333 });
+          }
+        }
+      });
+    }
   }
 
   private setupClickHandler(): void {
-    // Preview sprite that follows mouse
+    const colors: Record<string, number> = { '1': 0x00ff00, '2': 0x0000ff, '3': 0xff00ff };
+
     this.parent.eventMode = 'static';
     this.parent.hitArea = this.app.screen;
 
@@ -235,48 +390,78 @@ export class DecorationEditor {
       const globalPos = e.global;
       const localPos = this.parent.toLocal(globalPos);
       
-      // Don't show preview if hovering over UI (check global coords)
-      if (globalPos.x < 220 && globalPos.y < 260) {
-        if (this.previewSprite) {
-          this.previewSprite.visible = false;
-        }
+      // Don't show preview if hovering over UI
+      if (globalPos.x < 220 && globalPos.y < 360) {
+        if (this.previewSprite) this.previewSprite.visible = false;
+        if (this.previewTile) this.previewTile.visible = false;
         return;
       }
 
-      if (!this.previewSprite) {
-        this.previewSprite = new Sprite(this.decorationTextures[this.selectedType]);
-        this.previewSprite.anchor.set(0.5, 1);
-        this.previewSprite.alpha = 0.5;
-        this.decorContainer.addChild(this.previewSprite);
-      }
+      if (this.editorMode === 'decoration') {
+        if (!this.previewSprite) {
+          this.previewSprite = new Sprite(this.decorationTextures[this.selectedType]);
+          this.previewSprite.anchor.set(0.5, 1);
+          this.previewSprite.alpha = 0.5;
+          this.decorContainer.addChild(this.previewSprite);
+        }
 
-      this.previewSprite.texture = this.decorationTextures[this.selectedType];
-      this.previewSprite.scale.set(this.variants[this.selectedType].scale);
-      this.previewSprite.x = localPos.x;
-      this.previewSprite.y = localPos.y;
-      this.previewSprite.visible = true;
+        this.previewSprite.texture = this.decorationTextures[this.selectedType];
+        this.previewSprite.scale.set(this.variants[this.selectedType].scale);
+        this.previewSprite.x = localPos.x;
+        this.previewSprite.y = localPos.y;
+        this.previewSprite.visible = true;
+      } else {
+        if (!this.previewTile) {
+          this.previewTile = new Graphics();
+          this.previewTile.alpha = 0.5;
+          this.boardTileContainer.addChild(this.previewTile);
+        }
+
+        this.previewTile.clear();
+        this.previewTile.circle(0, 0, this.TILE_RADIUS);
+        this.previewTile.fill({ color: colors[this.selectedTileType] });
+        this.previewTile.x = localPos.x;
+        this.previewTile.y = localPos.y;
+        this.previewTile.visible = true;
+      }
     });
 
     this.parent.on('pointerdown', (e: any) => {
       const globalPos = e.global;
       
       // Ignore right-clicks and clicks on UI
-      if (e.button === 2 || (globalPos.x < 220 && globalPos.y < 260)) return;
+      if (e.button === 2 || (globalPos.x < 220 && globalPos.y < 360)) return;
+
+      // For board tiles, require shift-click
+      if (this.editorMode === 'board-tile' && !e.shiftKey) return;
 
       // Stop propagation to prevent viewport drag
       e.stopPropagation();
       
       const localPos = this.parent.toLocal(globalPos);
 
-      const newDecoration: DecorationData = {
-        type: this.selectedType,
-        x: localPos.x,
-        y: localPos.y,
-        scale: this.variants[this.selectedType].scale,
-      };
+      if (this.editorMode === 'decoration') {
+        const newDecoration: DecorationData = {
+          type: this.selectedType,
+          x: localPos.x,
+          y: localPos.y,
+          scale: this.variants[this.selectedType].scale,
+        };
 
-      this.decorations.push(newDecoration);
-      this.renderDecorations();
+        this.decorations.push(newDecoration);
+        this.renderDecorations();
+      } else {
+        const newTile: BoardTileData = {
+          x: Math.round(localPos.x),
+          y: Math.round(localPos.y),
+          type: this.selectedTileType,
+          id: `main_${this.nextTileId}`,
+        };
+
+        this.nextTileId++;
+        this.boardTiles.push(newTile);
+        this.renderBoardTiles();
+      }
     });
   }
 
@@ -285,6 +470,22 @@ export class DecorationEditor {
     if (index > -1) {
       this.decorations.splice(index, 1);
       this.renderDecorations();
+    }
+  }
+
+  private removeBoardTile(tile: BoardTileData): void {
+    const index = this.boardTiles.indexOf(tile);
+    if (index > -1) {
+      this.boardTiles.splice(index, 1);
+      this.renderBoardTiles();
+    }
+  }
+
+  private async saveData(): Promise<void> {
+    if (this.editorMode === 'decoration') {
+      this.saveDecorations();
+    } else {
+      this.saveBoardTiles();
     }
   }
 
@@ -304,13 +505,35 @@ export class DecorationEditor {
 
     console.log('Decorations saved! Place the downloaded file in data/decorations.json');
     alert('Decorations saved! Place the downloaded decorations.json file in the data/ folder.');
-    }
+  }
+
+  private async saveBoardTiles(): Promise<void> {
+    const json = JSON.stringify(this.boardTiles, null, 2);
+    
+    // Create a download link
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'board-tiles.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    console.log('Board tiles saved! Place the downloaded file in data/board-tiles.json');
+    alert('Board tiles saved! Place the downloaded board-tiles.json file in the data/ folder.');
+  }
 
   destroy(): void {
     this.decorContainer.destroy({ children: true });
+    this.boardTileContainer.destroy({ children: true });
     this.ui.destroy({ children: true });
     if (this.previewSprite) {
       this.previewSprite.destroy();
+    }
+    if (this.previewTile) {
+      this.previewTile.destroy();
     }
   }
 }

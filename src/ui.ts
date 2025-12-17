@@ -1,11 +1,29 @@
 import Player from './player';
 import userSvgUrl from '../assets/user.svg';
+import { RandEvent } from './game';
+
+export interface QuestionAnswer {
+  text: string;
+  consequence: 'LOSE_SANITY' | 'MOVE_BACKWARD' | 'LOSE_TURN';
+  amount?: number;
+}
+
+export interface Question {
+  id: string;
+  context?: string;
+  question: string;
+  answers?: QuestionAnswer[];
+  correctAnswer?: boolean;
+}
 
 export class UIOverlay {
   private element: HTMLDivElement;
   private onDiceRoll?: (value: number) => void;
-  private onAnswer?: (answer: boolean) => void;
+  private onAnswer?: (answer: QuestionAnswer, questionId: string) => void;
   private onGameStart?: (players: number) => void;
+  private onRandomEventClose?: (event: RandEvent) => void;
+  private currentQuestionId?: string;
+
 
   private players?: {
     id: number;
@@ -36,13 +54,18 @@ export class UIOverlay {
         <div id="dice-result" aria-live="polite"></div>
       </div>
       <div id="question-section" class="nine-slice-border">
-        <h2>Question</h2>
+        <h2>Memory</h2>
+        <p id="question-context"></p>
         <p id="question-text"></p>
-        <button id="answer-true" class="answer-btn">True</button>
-        <button id="answer-false" class="answer-btn">False</button>
+        <div id="answers-container"></div>
       </div>
       <div id="feedback-section">
         <p id="feedback-text"></p>
+      </div>
+      <div id="event-popup" class="nine-slice-border">
+        <h2>Random Event!</h2>
+        <p id="event-text"></p>
+        <button id="event-close-button">Continue</button>
       </div>
       <div id="game-over" class="nine-slice-border">
         <h1>Leaderboard</h1>
@@ -55,8 +78,6 @@ export class UIOverlay {
 
   private setupEventListeners(): void {
     const rollDiceBtn = document.getElementById('roll-dice-button') as HTMLButtonElement;
-    const trueBtn = document.getElementById('answer-true') as HTMLButtonElement;
-    const falseBtn = document.getElementById('answer-false') as HTMLButtonElement;
     const startGameBtn = document.getElementById('start-game-button') as HTMLButtonElement;
     const addPlayerBtn = document.getElementById('add-player-button') as HTMLButtonElement;
 
@@ -105,18 +126,10 @@ export class UIOverlay {
     });
 
     rollDiceBtn?.addEventListener('click', () => {
-      // rollDiceBtn.disabled = true;
-      const value = Math.floor(Math.random() * 6) + 1;
+      rollDiceBtn.disabled = true;
+      const value = Math.floor(Math.random() * 4) + 1;
       this.updateDiceResult(value);
       this.onDiceRoll?.(value);
-    });
-
-    trueBtn?.addEventListener('click', () => {
-      this.onAnswer?.(true);
-    });
-
-    falseBtn?.addEventListener('click', () => {
-      this.onAnswer?.(false);
     });
 
     addPlayerBtn.dispatchEvent(new Event('click')); //Add initial player
@@ -126,12 +139,20 @@ export class UIOverlay {
     this.onDiceRoll = callback;
   }
 
-  setAnswerCallback(callback: (answer: boolean) => void): void {
+  setAnswerCallback(callback: (answer: QuestionAnswer, questionId: string) => void): void {
     this.onAnswer = callback;
+  }
+
+  setRandomEventCallback(callback: (event: RandEvent) => void): void {
+    this.onRandomEventClose = callback;
   }
 
   setGameStartCallback(callback: (players: number) => void): void {
     this.onGameStart = callback;
+  }
+
+  getPlayers(): { id: number; hue: number }[] {
+    return this.players || [];
   }
 
   showDiceInput(): void {
@@ -182,17 +203,80 @@ export class UIOverlay {
     }
   }
 
-  showQuestion(questionText: string, playerSanity: number): void {
+  showQuestion(question: Question, playerSanity: number): void {
     const section = document.getElementById('question-section') as HTMLDivElement;
+    const contextContainer = document.getElementById('question-context') as HTMLParagraphElement;
     const textContainer = document.getElementById('question-text') as HTMLParagraphElement;
+    const answersContainer = document.getElementById('answers-container') as HTMLDivElement;
 
+    this.currentQuestionId = question.id;
+
+    let displayContext = question.context || '';
+    let displayQuestion = question.question;
+
+    // Scramble text if sanity is low
     if (playerSanity <= 50) {
-      questionText = this.scrambleText(questionText);
+      displayContext = this.scrambleText(displayContext);
+      displayQuestion = this.scrambleText(displayQuestion);
     }
 
-    if (section && textContainer) {
-      textContainer.textContent = questionText;
+    if (section && textContainer && answersContainer) {
+      if (contextContainer && displayContext) {
+        contextContainer.textContent = displayContext;
+        contextContainer.style.display = 'flex';
+      } else if (contextContainer) {
+        contextContainer.style.display = 'none';
+      }
+
+      textContainer.textContent = displayQuestion;
+      answersContainer.innerHTML = '';
+
+      // Handle new structure with answers array
+      if (question.answers && question.answers.length > 0) {
+        question.answers.forEach((answer, index) => {
+          const btn = document.createElement('button');
+          btn.className = 'answer-btn';
+          btn.textContent = answer.text;
+          btn.addEventListener('click', () => {
+            this.onAnswer?.(answer, question.id);
+          });
+          answersContainer.appendChild(btn);
+        });
+      } else {
+        const trueBtn = document.createElement('button');
+        trueBtn.className = 'answer-btn';
+        trueBtn.textContent = 'True';
+        trueBtn.addEventListener('click', () => {
+          const answer: QuestionAnswer = {
+            text: 'True',
+            consequence: question.correctAnswer ? 'LOSE_TURN' : 'LOSE_SANITY',
+            amount: 25
+          };
+          this.onAnswer?.(answer, question.id);
+        });
+
+        const falseBtn = document.createElement('button');
+        falseBtn.className = 'answer-btn';
+        falseBtn.textContent = 'False';
+        falseBtn.addEventListener('click', () => {
+          const answer: QuestionAnswer = {
+            text: 'False',
+            consequence: !question.correctAnswer ? 'LOSE_TURN' : 'LOSE_SANITY',
+            amount: 25
+          };
+          this.onAnswer?.(answer, question.id);
+        });
+
+        answersContainer.appendChild(trueBtn);
+        answersContainer.appendChild(falseBtn);
+      }
+
       section.style.display = 'block';
+      section.animate([{ top: '-50%' }, { top: '55%' }, { top: '50%' }], {
+        duration: 1000,
+        fill: 'forwards',
+        easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
+      });
     }
   }
 
@@ -213,11 +297,16 @@ export class UIOverlay {
 
   hideQuestion(): void {
     const section = document.getElementById('question-section') as HTMLDivElement;
-    if (section) section.style.display = 'none';
+    section.animate([{top: "50%"},{ top: '55%' }, { top: '-50%' }], {
+          duration: 1000,
+          fill: 'forwards',
+          easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
+        }).onfinish = () => {
+          section.style.display = 'none';
+        };
   }
 
   showFeedback(message: string): void {
-    const rollDiceBtn = document.getElementById('roll-dice-button') as HTMLButtonElement;
     const section = document.getElementById('feedback-section') as HTMLDivElement;
     const text = document.getElementById('feedback-text') as HTMLParagraphElement;
 
@@ -226,7 +315,6 @@ export class UIOverlay {
       section.style.display = 'block';
       setTimeout(() => {
         section.style.display = 'none';
-        if (rollDiceBtn) rollDiceBtn.disabled = false;
       }, 2000);
     }
   }
@@ -244,7 +332,7 @@ export class UIOverlay {
     });
   }
 
-  loseSanity(index: number): void {
+  loseSanity(index: number, amount: number = 25): void {
     const overlay = document.getElementById('overlay') as HTMLDivElement;
     if (overlay) {
       overlay.animate(
@@ -260,7 +348,7 @@ export class UIOverlay {
     }
     const sanityBar = document.getElementById(`player-sanity-${index + 1}`) as HTMLProgressElement;
     if (sanityBar) {
-      for (let i = 0; i < 25; i++) {
+      for (let i = 0; i < amount; i++) {
         setTimeout(() => {
           sanityBar.value = Math.max(0, sanityBar.value - 1);
         }, 20 * i);
@@ -273,6 +361,37 @@ export class UIOverlay {
     const pd = playerDisplays[index];
     if (pd) {
       pd.classList.add('dead');
+    }
+  }
+
+  showEvent(event: RandEvent): void {
+    const eventPopup = document.getElementById('event-popup') as HTMLDivElement;
+    const eventText = document.getElementById('event-text') as HTMLParagraphElement;
+    const eventCloseBtn = document.getElementById('event-close-button') as HTMLButtonElement;
+
+    if (eventPopup && eventText && eventCloseBtn) {
+      eventText.textContent = event.description;
+      eventPopup.style.display = 'block';
+
+     eventPopup.animate([{ top: '-50%' }, { top: '55%' }, { top: '50%' }], {
+        duration: 1000,
+        fill: 'forwards',
+        easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
+      });
+
+      const closeHandler = () => {
+        eventPopup.animate([{top: "50%"},{ top: '55%' }, { top: '-50%' }], {
+          duration: 1000,
+          fill: 'forwards',
+          easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
+        }).onfinish = () => {
+          eventPopup.style.display = 'none';
+        };
+        eventCloseBtn.removeEventListener('click', closeHandler);
+        this.onRandomEventClose?.(event);
+      };
+
+      eventCloseBtn.addEventListener('click', closeHandler);
     }
   }
 }

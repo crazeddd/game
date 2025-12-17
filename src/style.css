@@ -55,6 +55,13 @@ h1 {
   color: var(--text);
 }
 
+h2 {
+  font-size: 2.5rem;
+  letter-spacing: 0.02em;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
 p {
   font-size: 2rem;
   color: var(--muted);
@@ -100,29 +107,35 @@ progress::-moz-progress-bar {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  max-width: 600px;
+  max-width: 800px;
   width: 90%;
   padding: 48px;
   display: none;
 }
 
-#question-text {
+#question-context {
   font-size: 1.4rem;
-  margin-bottom: 16px;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+#question-text {
+  font-size: 1.5rem;
   color: var(--text);
+  margin-bottom: 24px;
 }
 
 .answer-btn {
-  margin-right: 12px;
+  width: 100%;
+  background-color: var(--panel);
   padding: 10px 20px;
   font-size: 1.2rem;
-  border-radius: 6px;
   cursor: pointer;
   transition: transform 0.1s;
 }
 
 .answer-btn:hover {
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
 
 .answer-btn:active {
@@ -130,17 +143,21 @@ progress::-moz-progress-bar {
 }
 
 #feedback-section {
+  background-image: radial-gradient(rgba(0,0,0,0.8) 20%, rgba(0,0,0,0) 70%);
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  padding: 16px;
+  padding: 100px;
+  display: none;
+  text-align: center;
 }
 
 #feedback-text {
   font-size: 5rem;
+  text-align: center;
   /* font-weight: bold; */
-  color: #000;
+  color: #ffffff;
   /* text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); */
 }
 
@@ -215,6 +232,24 @@ progress::-moz-progress-bar {
   transform: translateX(-50%);
   padding: 16px;
   display: none;
+}
+
+#event-popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 600px;
+  width: 90%;
+  padding: 48px;
+  display: none;
+  text-align: center;
+}
+
+#event-text {
+  font-size: 1.6rem;
+  color: var(--text);
+  margin-bottom: 24px;
 }
 
 #game-over {

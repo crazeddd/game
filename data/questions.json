@@ -1,50 +1,172 @@
 [
   {
     "id": "q1",
-    "question": "Is the Earth flat?",
-    "correctAnswer": false,
-    "points": 10
+    "context": "You grab an old broken kite, and you're transported to a memory. You see two kids, Susanna and Pedro, running in a meadow flying a kite. They look blissfully happy and carefree as the kite slips between their fingers.",
+    "question": "How does this memory contribute to the loss of Susanna's sanity?",
+    "answers": [
+      {
+        "text": "It cements Pedro's obsession over her",
+        "consequence": "LOSE_SANITY",
+        "amount": 10
+      },
+      {
+        "text": "It causes Susanna to become more haunted by her past",
+        "consequence": "LOSE_SANITY",
+        "amount": 15
+      }
+    ]
   },
   {
     "id": "q2",
-    "question": "Is water composed of H2O?",
-    "correctAnswer": true,
-    "points": 10
+    "context": "You find an ox cart, and see a vision of the past. You see Abundio jovially talking with his wife and walking through the town.",
+    "question": "How does this contribute to the loss of his sanity?",
+    "answers": [
+      {
+        "text": "This love for his wife causes her later loss to become even more detrimental",
+        "consequence": "LOSE_SANITY",
+        "amount": 15
+      },
+      {
+        "text": "His happiness becomes stagnant because of his life in poverty",
+        "consequence": "LOSE_SANITY",
+        "amount": 10
+      }
+    ]
   },
   {
     "id": "q3",
-    "question": "Does the sun revolve around the Earth?",
-    "correctAnswer": false,
-    "points": 10
+    "context": "You see a white shard hidden under a table and pick it up, realizing belatedly that it's a human skull. You're transported to a flashback of young Susanna lowered into a hole, finding human bones.",
+    "question": "Should you keep her away from her father for traumatizing her or leave her in his care?",
+    "answers": [
+      {
+        "text": "Take her away",
+        "consequence": "LOSE_SANITY",
+        "amount": 10
+      },
+      {
+        "text": "Let her stay",
+        "consequence": "LOSE_SANITY",
+        "amount": 10
+      }
+    ]
   },
   {
     "id": "q4",
-    "question": "Are humans mammals?",
-    "correctAnswer": true,
-    "points": 10
+    "context": "In the church, you pick up a bible and see a flashback of Father Renteria listening to the confessions of sinning townspeople. You see him slowly become more weary and dejected the more he listens.",
+    "question": "What should he do to retain his good standing in Comala and keep his moral values?",
+    "answers": [
+      {
+        "text": "Pardon those who have sinned in exchange for monetary reward to provide for himself",
+        "consequence": "LOSE_SANITY",
+        "amount": 15
+      },
+      {
+        "text": "Not pardon those who he believes are guilty to ensure they receive consequences for their actions",
+        "consequence": "MOVE_BACKWARD",
+        "amount": 1
+      }
+    ]
   },
   {
     "id": "q5",
-    "question": "Is light faster than sound?",
-    "correctAnswer": true,
-    "points": 10
+    "context": "You walk into a shack with straw mats on the floor, and see a flashback of Abundio and several others lying on the ground.",
+    "question": "Should Abundio consult his father to try and get out of poverty?",
+    "answers": [
+      {
+        "text": "Yes",
+        "consequence": "LOSE_SANITY",
+        "amount": 10
+      },
+      {
+        "text": "No",
+        "consequence": "MOVE_BACKWARD",
+        "amount": 1
+      }
+    ]
   },
   {
     "id": "q6",
-    "question": "Can fish breathe air?",
-    "correctAnswer": false,
-    "points": 10
+    "context": "You stumble across gold coins and pick them up out of desperation. When you pick it up, you are taken to the time where Father Renteria was given gold coins in exchange for Miguel's salvation. You see the desperate but guilty eyes of Father Renteria glaring at the coins…",
+    "question": "What should Father do?",
+    "answers": [
+      {
+        "text": "Accept the coins and save Miguel from his sins",
+        "consequence": "LOSE_SANITY",
+        "amount": 20
+      },
+      {
+        "text": "Decline the offer and face consequences from Pedro himself",
+        "consequence": "MOVE_BACKWARD",
+        "amount": 2
+      }
+    ]
   },
   {
     "id": "q7",
-    "question": "Is gold heavier than iron?",
-    "correctAnswer": true,
-    "points": 10
+    "context": "You find a broken bottle of liquor on the ground; as you pick it up you see a flashback of Abundio pondering the death of his wife with a bottle in his hand.",
+    "question": "Knowing he doesn't have enough money to bury his wife, what should he do?",
+    "answers": [
+      {
+        "text": "Beg his father for money for her last rites",
+        "consequence": "LOSE_SANITY",
+        "amount": 15
+      },
+      {
+        "text": "Take on extra jobs to protect his pride and integrity to provide her last rites",
+        "consequence": "MOVE_BACKWARD",
+        "amount": 1
+      }
+    ]
   },
   {
     "id": "q8",
-    "question": "Do plants produce oxygen?",
-    "correctAnswer": true,
-    "points": 10
+    "context": "You pick up an old, rusted knife, and find that it is broken into two pieces. As you put the pieces together, you are taken back to the time where Abundio is under the influence and you spectate his madness. You know he is about to attack Pedro as he is running towards him with the knife.",
+    "question": "Being a bystander… What will you do?",
+    "answers": [
+      {
+        "text": "Take matters into your own hands and rush over to save Pedro",
+        "consequence": "MOVE_BACKWARD",
+        "amount": 2
+      },
+      {
+        "text": "Watch as Pedro gets stabbed to death",
+        "consequence": "LOSE_SANITY",
+        "amount": 25
+      }
+    ]
+  },
+  {
+    "id": "q9",
+    "context": "Justina's cat is at the window scratching its paws on the glass. The cat wants to come inside the room. Right as you contemplate opening the window, you teleport into a flashback inside Susana's thoughts. Susana San Juan thinks that Justina's cat was disturbing her during late nights even though Justina claims that she did not let the cat in. Then suddenly, you notice both Susana and Justina look to you for reassurance.",
+    "question": "Being in the middle of this.. Who do you choose to believe?",
+    "answers": [
+      {
+        "text": "Believe Susana that the cat was in the room and taunting her into madness",
+        "consequence": "LOSE_SANITY",
+        "amount": 10
+      },
+      {
+        "text": "Believe Justina that she did not let the cat in and Susana is lying",
+        "consequence": "LOSE_SANITY",
+        "amount": 15
+      }
+    ]
+  },
+  {
+    "id": "q10",
+    "context": "You're in Pedro's house and see a pristine bed in one of the rooms. You're transported to a flashback of Susanna, out of her mind and yelling for Justina.",
+    "question": "What should you do for her?",
+    "answers": [
+      {
+        "text": "Try to save her and look for a doctor before she gets worse",
+        "consequence": "MOVE_BACKWARD",
+        "amount": 1
+      },
+      {
+        "text": "Accept that she doesn't wish to be saved and send for the priest to help her peacefully pass on",
+        "consequence": "LOSE_SANITY",
+        "amount": 20
+      }
+    ]
   }
 ]
