@@ -6,7 +6,7 @@
   --text: rgba(18, 18, 18, 0.8);
   --muted: rgba(18, 18, 18, 0.8);
   --shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-  --progress: rgba(255, 65, 65, 1);
+  --progress: rgba(255, 65, 65, 0.9);
   font-family: 'Kranky', 'Segoe UI', sans-serif;
 }
 
@@ -69,12 +69,12 @@ p {
 }
 
 progress {
-  width: 100px;
-  height: 10px;
+  width: 7rem;
+  height: 0.7rem;
   appearance: none;
   -webkit-appearance: none;
   overflow: hidden;
-  border-radius: 5px;
+  border-radius: 0.5rem;
 }
 
 progress::-webkit-progress-bar {
@@ -107,9 +107,9 @@ progress::-moz-progress-bar {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  max-width: 800px;
+  max-width: 600px;
   width: 90%;
-  padding: 48px;
+  padding: 2rem;
   display: none;
 }
 
@@ -128,7 +128,7 @@ progress::-moz-progress-bar {
 .answer-btn {
   width: 100%;
   background-color: var(--panel);
-  padding: 10px 20px;
+  padding: 1rem 2rem;
   font-size: 1.2rem;
   cursor: pointer;
   transition: transform 0.1s;
@@ -148,7 +148,7 @@ progress::-moz-progress-bar {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  padding: 100px;
+  padding: 6rem;
   display: none;
   text-align: center;
 }
@@ -168,7 +168,7 @@ progress::-moz-progress-bar {
 }
 
 .player-info {
-  padding: 16px;
+  padding: 1rem;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -186,6 +186,7 @@ progress::-moz-progress-bar {
   display: flex;
   gap: 1rem;
   justify-content: center;
+  align-items: center;
 }
 
 .active {
@@ -214,14 +215,14 @@ progress::-moz-progress-bar {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 32px;
+  padding: 2rem;
 }
 
 #game-info {
   position: absolute;
   top: 16px;
   left: 16px;
-  padding: 32px;
+  padding: 2rem;
   display: none;
 }
 
@@ -230,7 +231,7 @@ progress::-moz-progress-bar {
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
-  padding: 16px;
+  padding: 1rem;
   display: none;
 }
 
@@ -241,7 +242,7 @@ progress::-moz-progress-bar {
   transform: translate(-50%, -50%);
   max-width: 600px;
   width: 90%;
-  padding: 48px;
+  padding: 2rem;
   display: none;
   text-align: center;
 }
@@ -259,7 +260,7 @@ progress::-moz-progress-bar {
   transform: translate(-50%, -50%);
   height: 100vh;
   width: 100vw;
-  padding: 64px;
+  padding: 4rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -278,8 +279,13 @@ progress::-moz-progress-bar {
   color: var(--text);
 }
 
+.player-icon {
+  width: 2rem;
+  height: 2rem;
+}
+
 button {
-  padding: 12px 24px;
+  padding: 1rem 2rem;
   font-size: 1.25rem;
   color: var(--bg);
   background: transparent;
@@ -307,5 +313,14 @@ button:active {
 }
 
 @media (min-width: 2500px) {
-  html { font-size: 24px; }
+  html { font-size: 42px; }
+  #question-section {
+    max-width: 1500px;
+    padding: 4rem;
+  }
+
+  #event-popup {
+    max-width: 1200px;
+    padding: 4rem;
+  }
 }

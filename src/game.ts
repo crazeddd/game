@@ -1,4 +1,4 @@
-import { Application, Container, Sprite, Assets, Graphics, ColorMatrixFilter } from 'pixi.js';
+import { Application, Container, Sprite, Assets, Graphics, ColorMatrixFilter, Rectangle } from 'pixi.js';
 import { Viewport } from 'pixi-viewport';
 import { gsap } from 'gsap';
 import { UIOverlay, Question, QuestionAnswer } from './ui';
@@ -250,7 +250,7 @@ export class Game {
     if (rollDiceBtn) rollDiceBtn.disabled = false;
   }
 
-  private handleGameStart(players: number): void {
+  private async handleGameStart(players: number): Promise<void> {
     const uiPlayers = this.ui.getPlayers();
     
     for (let i = 0; i < players; i++) {
@@ -264,7 +264,7 @@ export class Game {
       const hueFilter = new ColorMatrixFilter();
       hueFilter.hue(hue);
       playerSprite.filters = [hueFilter];
-
+      
       this.players.push(player);
       this.placePlayer(player);
     }

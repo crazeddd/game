@@ -92,14 +92,14 @@ export class UIOverlay {
         const newPlayer = document.createElement('div');
         const hue = Math.floor(Math.random() * 360);
         newPlayer.className = 'player';
-        newPlayer.innerHTML = `<img src="${userSvgUrl}" width="50" height="50" style="filter: hue-rotate(${hue}deg);" alt="Player ${(this.players?.length ?? 0) + 1}">`;
+        newPlayer.innerHTML = `<img src="${userSvgUrl}" class="player-icon" style="filter: hue-rotate(${hue}deg);" alt="Player ${(this.players?.length ?? 0) + 1}">`;
         playersContainer.prepend(newPlayer);
 
         const newPlayerDisplay = document.createElement('div');
         if ((this.players?.length ?? 0) === 0) newPlayerDisplay.classList.add('active');
         newPlayerDisplay.classList.add('player-info');
         newPlayerDisplay.innerHTML = `
-              <img src="${userSvgUrl}" width="30" height="30" style="filter: hue-rotate(${hue}deg);" alt="Player ${(this.players?.length ?? 0) + 1}">
+              <img src="${userSvgUrl}" class="player-icon" style="filter: hue-rotate(${hue}deg);" alt="Player ${(this.players?.length ?? 0) + 1}">
               <progress id="player-sanity-${(this.players?.length ?? 0) + 1}" value="100" max="100"></progress>
             `;
         playerDisplay.append(newPlayerDisplay);
@@ -184,7 +184,7 @@ export class UIOverlay {
         const entry = document.createElement('div');
         entry.className = 'leaderboard-entry';
         entry.innerHTML = ` 
-        <img src="${userSvgUrl}" width="30" height="30" alt="Player ${p.id}" style="filter: hue-rotate(${this.players?.[p.id - 1]?.hue}deg);">
+        <img src="${userSvgUrl}" class="player-icon" alt="Player ${p.id}" style="filter: hue-rotate(${this.players?.[p.id - 1]?.hue}deg);">
         <span>${p.sanity} Sanity</span>`;
         leaderboard.appendChild(entry);
       }
